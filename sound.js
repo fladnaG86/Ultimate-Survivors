@@ -488,28 +488,325 @@ function _sfxNovaPulse() {
   o.start(t); o.stop(t + 0.16);
 }
 
+// ── SFX: whipSwing (~80ms) ────────────────────────────
+function _sfxWhipSwing() {
+  const t = _ctx.currentTime;
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(600, t);
+  o.frequency.exponentialRampToValueAtTime(200, t + 0.08);
+  g.gain.setValueAtTime(0.25, t);
+  g.gain.linearRampToValueAtTime(0, t + 0.08);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.09);
+}
+
+// ── SFX: whipReaper (~60ms, più sottile) ───────────────
+function _sfxWhipReaper() {
+  const t = _ctx.currentTime;
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(800, t);
+  o.frequency.exponentialRampToValueAtTime(300, t + 0.06);
+  g.gain.setValueAtTime(0.2, t);
+  g.gain.linearRampToValueAtTime(0, t + 0.06);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.07);
+}
+
+// ── SFX: missileLaunch (~200ms) ───────────────────────
+function _sfxMissileLaunch() {
+  const t = _ctx.currentTime;
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(150, t);
+  o.frequency.exponentialRampToValueAtTime(600, t + 0.2);
+  g.gain.setValueAtTime(0.2, t);
+  g.gain.linearRampToValueAtTime(0, t + 0.2);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.21);
+
+  const ns = _ctx.createBufferSource();
+  ns.buffer = _noiseShort;
+  const f = _ctx.createBiquadFilter();
+  f.type = 'lowpass';
+  f.frequency.value = 400;
+  const ng = _ctx.createGain();
+  ng.gain.setValueAtTime(0.1, t);
+  ng.gain.linearRampToValueAtTime(0, t + 0.15);
+  ns.connect(f).connect(ng).connect(_sfxGain);
+  ns.start(t, 0, 0.15);
+}
+
+// ── SFX: chainZap (~120ms) ────────────────────────────
+function _sfxChainZap() {
+  const t = _ctx.currentTime;
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'square';
+  o.frequency.setValueAtTime(2000, t);
+  o.frequency.exponentialRampToValueAtTime(800, t + 0.12);
+  g.gain.setValueAtTime(0.15, t);
+  g.gain.linearRampToValueAtTime(0, t + 0.12);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.13);
+
+  const ns = _ctx.createBufferSource();
+  ns.buffer = _noiseShort;
+  const f = _ctx.createBiquadFilter();
+  f.type = 'bandpass';
+  f.frequency.value = 3000;
+  f.Q.value = 3;
+  const ng = _ctx.createGain();
+  ng.gain.setValueAtTime(0.1, t);
+  ng.gain.linearRampToValueAtTime(0, t + 0.08);
+  ns.connect(f).connect(ng).connect(_sfxGain);
+  ns.start(t, 0, 0.08);
+}
+
+// ── SFX: bloodMoonStart (~1.5s) ───────────────────────
+function _sfxBloodMoonStart() {
+  const t = _ctx.currentTime;
+
+  // Sub drone
+  const o1 = _ctx.createOscillator();
+  const g1 = _ctx.createGain();
+  o1.type = 'sine';
+  o1.frequency.setValueAtTime(50, t);
+  o1.frequency.linearRampToValueAtTime(40, t + 1.5);
+  g1.gain.setValueAtTime(0, t);
+  g1.gain.linearRampToValueAtTime(0.4, t + 0.2);
+  g1.gain.linearRampToValueAtTime(0, t + 1.5);
+  o1.connect(g1).connect(_sfxGain);
+  o1.start(t); o1.stop(t + 1.6);
+
+  // Harmonic layer
+  const o2 = _ctx.createOscillator();
+  const g2 = _ctx.createGain();
+  o2.type = 'sawtooth';
+  o2.frequency.setValueAtTime(100, t);
+  o2.frequency.linearRampToValueAtTime(80, t + 1.5);
+  g2.gain.setValueAtTime(0, t);
+  g2.gain.linearRampToValueAtTime(0.15, t + 0.3);
+  g2.gain.linearRampToValueAtTime(0, t + 1.4);
+  o2.connect(g2).connect(_sfxGain);
+  o2.start(t); o2.stop(t + 1.5);
+}
+
+// ── SFX: eliteSpawn (~0.8s) ───────────────────────────
+function _sfxEliteSpawn() {
+  const t = _ctx.currentTime;
+
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(300, t);
+  o.frequency.exponentialRampToValueAtTime(100, t + 0.5);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.35, t + 0.1);
+  g.gain.linearRampToValueAtTime(0, t + 0.5);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.55);
+
+  const ns = _ctx.createBufferSource();
+  ns.buffer = _noiseShort;
+  const f = _ctx.createBiquadFilter();
+  f.type = 'lowpass';
+  f.frequency.value = 300;
+  const ng = _ctx.createGain();
+  ng.gain.setValueAtTime(0.2, t);
+  ng.gain.linearRampToValueAtTime(0, t + 0.4);
+  ns.connect(f).connect(ng).connect(_sfxGain);
+  ns.start(t, 0, 0.4);
+}
+
+// ── SFX: eliteDeath (~0.4s) ───────────────────────────
+function _sfxEliteDeath() {
+  const t = _ctx.currentTime;
+
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(500, t);
+  o.frequency.exponentialRampToValueAtTime(80, t + 0.4);
+  g.gain.setValueAtTime(0.4, t);
+  g.gain.linearRampToValueAtTime(0, t + 0.4);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.45);
+
+  const ns = _ctx.createBufferSource();
+  ns.buffer = _noiseShort;
+  const f = _ctx.createBiquadFilter();
+  f.type = 'bandpass';
+  f.frequency.value = 1000;
+  const ng = _ctx.createGain();
+  ng.gain.setValueAtTime(0.3, t);
+  ng.gain.linearRampToValueAtTime(0, t + 0.3);
+  ns.connect(f).connect(ng).connect(_sfxGain);
+  ns.start(t, 0, 0.3);
+}
+
+// ── SFX: comboBreak (~0.3s) ───────────────────────────
+function _sfxComboBreak() {
+  const t = _ctx.currentTime;
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(400, t);
+  o.frequency.exponentialRampToValueAtTime(100, t + 0.3);
+  g.gain.setValueAtTime(0.2, t);
+  g.gain.linearRampToValueAtTime(0, t + 0.3);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.35);
+}
+
+// ── SFX: comboTierUp (~0.25s) ─────────────────────────
+function _sfxComboTierUp() {
+  const t = _ctx.currentTime;
+  const notes = [440, 554, 659]; // A4, C#5, E5
+  for (let i = 0; i < notes.length; i++) {
+    const start = t + i * 0.08;
+    const o = _ctx.createOscillator();
+    const g = _ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(notes[i], start);
+    g.gain.setValueAtTime(0, start);
+    g.gain.linearRampToValueAtTime(0.2, start + 0.02);
+    g.gain.linearRampToValueAtTime(0, start + 0.2);
+    o.connect(g).connect(_sfxGain);
+    o.start(start); o.stop(start + 0.25);
+  }
+}
+
+// ── SFX: critHit (~0.15s) ─────────────────────────────
+function _sfxCritHit() {
+  const t = _ctx.currentTime;
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'square';
+  o.frequency.setValueAtTime(1200, t);
+  o.frequency.exponentialRampToValueAtTime(1800, t + 0.15);
+  g.gain.setValueAtTime(0.15, t);
+  g.gain.linearRampToValueAtTime(0, t + 0.15);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.16);
+}
+
+// ── SFX: aegisReflect (~0.2s) ─────────────────────────
+function _sfxAegisReflect() {
+  const t = _ctx.currentTime;
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(800, t);
+  o.frequency.exponentialRampToValueAtTime(2000, t + 0.2);
+  g.gain.setValueAtTime(0.2, t);
+  g.gain.linearRampToValueAtTime(0, t + 0.2);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.21);
+}
+
+// ── SFX: frostBite (~0.15s) ───────────────────────────
+function _sfxFrostBite() {
+  const t = _ctx.currentTime;
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(1500, t);
+  o.frequency.exponentialRampToValueAtTime(600, t + 0.15);
+  g.gain.setValueAtTime(0.18, t);
+  g.gain.linearRampToValueAtTime(0, t + 0.15);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.16);
+}
+
+// ── SFX: vampireHeal (~0.25s) ─────────────────────────
+function _sfxVampireHeal() {
+  const t = _ctx.currentTime;
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(300, t);
+  o.frequency.exponentialRampToValueAtTime(800, t + 0.25);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.2, t + 0.1);
+  g.gain.linearRampToValueAtTime(0, t + 0.25);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.3);
+}
+
+// ── SFX: evolution (~0.6s) ────────────────────────────
+function _sfxEvolution() {
+  const t = _ctx.currentTime;
+  const chord = [523, 659, 784, 1047]; // C5, E5, G5, C6
+  for (let i = 0; i < chord.length; i++) {
+    const start = t + i * 0.12;
+    const o = _ctx.createOscillator();
+    const g = _ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(chord[i], start);
+    g.gain.setValueAtTime(0, start);
+    g.gain.linearRampToValueAtTime(0.2, start + 0.03);
+    g.gain.linearRampToValueAtTime(0, start + 0.5);
+    o.connect(g).connect(_sfxGain);
+    o.start(start); o.stop(start + 0.55);
+  }
+}
+
+// ── SFX: boundaryHit (~0.1s) ──────────────────────────
+function _sfxBoundaryHit() {
+  const t = _ctx.currentTime;
+  const o = _ctx.createOscillator();
+  const g = _ctx.createGain();
+  o.type = 'square';
+  o.frequency.setValueAtTime(200, t);
+  o.frequency.exponentialRampToValueAtTime(80, t + 0.1);
+  g.gain.setValueAtTime(0.3, t);
+  g.gain.linearRampToValueAtTime(0, t + 0.1);
+  o.connect(g).connect(_sfxGain);
+  o.start(t); o.stop(t + 0.11);
+}
+
 // ── SFX dispatch table ────────────────────────────────
 const _sfxHandlers = {
-  gunFire:       _sfxGunFire,
-  spreadFire:    _sfxSpreadFire,
-  playerHit:     _sfxPlayerHit,
-  playerHitBoss: _sfxPlayerHitBoss,
-  enemyDeath:    _sfxEnemyDeath,
-  bigEnemyDeath: _sfxBigEnemyDeath,
-  bossSpawn:     _sfxBossSpawn,
-  bossEnrage:    _sfxBossEnrage,
-  bossNova:      _sfxBossNova,
-  bossDeath:     _sfxBossDeath,
-  swarmAlarm:    _sfxSwarmAlarm,
-  swarmStart:    _sfxSwarmStart,
-  levelUp:       _sfxLevelUp,
-  chestOpen:     _sfxChestOpen,
-  gameOver:      _sfxGameOver,
-  victory:       _sfxVictory,
-  cardSelect:    _sfxCardSelect,
-  buffAcquired:  _sfxBuffAcquired,
-  xpCollect:     _sfxXpCollect,
-  novaPulse:     _sfxNovaPulse,
+  gunFire:        _sfxGunFire,
+  spreadFire:     _sfxSpreadFire,
+  playerHit:      _sfxPlayerHit,
+  playerHitBoss:  _sfxPlayerHitBoss,
+  enemyDeath:     _sfxEnemyDeath,
+  bigEnemyDeath:  _sfxBigEnemyDeath,
+  bossSpawn:      _sfxBossSpawn,
+  bossEnrage:     _sfxBossEnrage,
+  bossNova:       _sfxBossNova,
+  bossDeath:      _sfxBossDeath,
+  swarmAlarm:     _sfxSwarmAlarm,
+  swarmStart:     _sfxSwarmStart,
+  levelUp:        _sfxLevelUp,
+  chestOpen:      _sfxChestOpen,
+  gameOver:       _sfxGameOver,
+  victory:        _sfxVictory,
+  cardSelect:     _sfxCardSelect,
+  buffAcquired:   _sfxBuffAcquired,
+  xpCollect:      _sfxXpCollect,
+  novaPulse:      _sfxNovaPulse,
+  whipSwing:      _sfxWhipSwing,
+  whipReaper:     _sfxWhipReaper,
+  missileLaunch:  _sfxMissileLaunch,
+  chainZap:       _sfxChainZap,
+  bloodMoonStart: _sfxBloodMoonStart,
+  eliteSpawn:     _sfxEliteSpawn,
+  eliteDeath:     _sfxEliteDeath,
+  comboBreak:     _sfxComboBreak,
+  comboTierUp:    _sfxComboTierUp,
+  critHit:        _sfxCritHit,
+  aegisReflect:   _sfxAegisReflect,
+  frostBite:      _sfxFrostBite,
+  vampireHeal:    _sfxVampireHeal,
+  evolution:      _sfxEvolution,
+  boundaryHit:    _sfxBoundaryHit,
 };
 
 // ── sfx(name) — public dispatcher ─────────────────────
@@ -617,6 +914,31 @@ function _createMuteButton() {
   document.body.appendChild(_muteBtn);
 }
 
+// ── Pause button ───────────────────────────────────────
+let _pauseBtn;
+function _createPauseButton() {
+  _pauseBtn = document.createElement('button');
+  _pauseBtn.textContent = '⏸';
+  _pauseBtn.style.cssText = `
+    position:fixed; top:56px; right:16px; z-index:5;
+    width:36px; height:36px; padding:0; border:1px solid #0af;
+    background:rgba(0,0,0,.5); color:#fff; font-size:16px;
+    cursor:pointer; border-radius:6px; line-height:36px; text-align:center;
+  `;
+  _pauseBtn.onclick = togglePause;
+  document.body.appendChild(_pauseBtn);
+}
+function _updatePauseButton() {
+  if (!_pauseBtn) return;
+  if (typeof isPaused === 'function' && isPaused()) {
+    _pauseBtn.textContent = '▶';
+    _pauseBtn.style.borderColor = '#ff0';
+  } else {
+    _pauseBtn.textContent = '⏸';
+    _pauseBtn.style.borderColor = '#0af';
+  }
+}
+
 function _updateMuteButton() {
   if (_muted) {
     _muteBtn.textContent = '🔇';
@@ -651,16 +973,17 @@ function initSound() {
   _masterGain.connect(_ctx.destination);
 
   _sfxGain = _ctx.createGain();
-  _sfxGain.gain.value = 0.7;
+  _sfxGain.gain.value = 0.25;
   _sfxGain.connect(_masterGain);
 
   _musicGain = _ctx.createGain();
-  _musicGain.gain.value = 0.5;
+  _musicGain.gain.value = 0.65;
   _musicGain.connect(_masterGain);
 
   _createNoiseBuffers();
   _preloadMusic();
   _createMuteButton();
+  _createPauseButton();
 
   // Unlock AudioContext on first user interaction (iOS requires touch)
   if (_ctx.state === 'suspended') {

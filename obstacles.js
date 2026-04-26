@@ -18,8 +18,9 @@ function generateObstacles() {
   obstacles = [];
   const MAP_SIZE = 10000;
   const CELL = 180;
-  for (let cx = -MAP_SIZE / CELL; cx <= MAP_SIZE / CELL; cx++) {
-    for (let cy = -MAP_SIZE / CELL; cy <= MAP_SIZE / CELL; cy++) {
+  const maxCell = Math.ceil(MAP_SIZE / CELL);
+  for (let cx = -maxCell; cx <= maxCell; cx++) {
+    for (let cy = -maxCell; cy <= maxCell; cy++) {
       const h = cellHash(cx, cy);
       if (h % 7 === 0 && h % 5 !== 0) {
         // Size categories: 0=small, 1=medium, 2=large, 3=huge
@@ -164,4 +165,139 @@ function updateObstacleSprites() {
 function drawObstacles(g, cameraX, cameraY, screenW, screenH) {
   // Sprites are positioned in worldContainer and auto-culled by PixiJS
   // This function is kept for any overlay effects (e.g., boundary glow)
+}
+
+// ── Arena Zones ──────────────────────────────────────────
+const ARENA_ZONES = [
+  { id: 'colosseum', cx: 6000, cy: -2000, clearRadius: 420, biome: 'desert' },
+  { id: 'canyon',    cx: 0,    cy: -5000, clearRadius: 500, biome: 'ice'    },
+];
+
+function generateArenaObstacles() {
+  const arenaObs = [];
+
+  // ── Colosseo (arena circolare di rovine) ────────────
+  const col = ARENA_ZONES[0];
+  const RING_R = 300;
+  const NUM_POS = 24;
+  const ENTRANCE_ANGLES = [0, Math.PI / 2, Math.PI, Math.PI * 3 / 2];
+  const ENTRANCE_HALF = Math.PI / 4;
+
+  for (let i = 0; i < NUM_POS; i++) {
+    const angle = (i / NUM_POS) * Math.PI * 2;
+    let nearEntrance = false;
+    for (const ea of ENTRANCE_ANGLES) {
+      let da = angle - ea;
+      while (da > Math.PI) da -= Math.PI * 2;
+      while (da < -Math.PI) da += Math.PI * 2;
+      if (Math.abs(da) < ENTRANCE_HALF) { nearEntrance = true; break; }
+    }
+    if (nearEntrance) continue;
+
+    const isCorner = (i % 3 === 2);
+    arenaObs.push({
+      x: col.cx + Math.cos(angle) * RING_R,
+      y: col.cy + Math.sin(angle) * RING_R,
+      radius: isCorner ? 70 : 55,
+      type: i % 8,
+      texCategory: 1,
+      biome: col.biome,
+    });
+  }
+
+  // Colonne interne (diagonali)
+  const INNER_R = 150;
+  for (let i = 0; i < 4; i++) {
+    const angle = Math.PI / 4 + i * Math.PI / 2;
+    arenaObs.push({
+      x: col.cx + Math.cos(angle) * INNER_R,
+      y: col.cy + Math.sin(angle) * INNER_R,
+      radius: 45,
+      type: (i + 1) % 8,
+      texCategory: 1,
+      biome: col.biome,
+    });
+  }
+
+  // Monumento centrale
+  arenaObs.push({
+    x: col.cx, y: col.cy,
+    radius: 80,
+    type: 0,
+    texCategory: 1,
+    biome: col.biome,
+  });
+
+  // ── Canyon (passaggio stretto) ─────────────────────
+  const can = ARENA_ZONES[1];
+  const WALL_Y = 110;
+  const WALL_COUNT = 9;
+  const WALL_SPACING = 95;
+
+  for (let i = 0; i < WALL_COUNT; i++) {
+    const xOff = (i - (WALL_COUNT - 1) / 2) * WALL_SPACING;
+    const isEnd = (i === 0 || i === WALL_COUNT - 1);
+    const r = isEnd ? 80 : 65;
+    const stagger = (i % 2 === 0) ? 20 : -15;
+
+    // Muro nord
+    arenaObs.push({
+      x: can.cx + xOff,
+      y: can.cy - WALL_Y,
+      radius: r,
+      type: i % 8,
+      texCategory: 0,
+      biome: can.biome,
+    });
+    // Muro sud (leggermente sfalsato)
+    arenaObs.push({
+      x: can.cx + xOff + stagger,
+      y: can.cy + WALL_Y,
+      radius: isEnd ? 80 : 65,
+      type: (i + 4) % 8,
+      texCategory: 0,
+      biome: can.biome,
+    });
+  }
+
+  // Rocce di copertura nel passaggio
+  const coverRocks = [
+    { dx: -200, dy: -15, r: 40 },
+    { dx: 80,   dy: 20,  r: 35 },
+    { dx: 260,  dy: -10, r: 40 },
+  ];
+  for (const cr of coverRocks) {
+    arenaObs.push({
+      x: can.cx + cr.dx,
+      y: can.cy + cr.dy,
+      radius: cr.r,
+      type: 4,
+      texCategory: 0,
+      biome: can.biome,
+    });
+  }
+
+  return arenaObs;
+}
+
+function removeArenaOverlaps() {
+  let w = 0;
+  for (let i = 0; i < obstacles.length; i++) {
+    const obs = obstacles[i];
+    let inArena = false;
+    for (const zone of ARENA_ZONES) {
+      if (Math.hypot(obs.x - zone.cx, obs.y - zone.cy) < zone.clearRadius + obs.radius) {
+        inArena = true;
+        break;
+      }
+    }
+    if (!inArena) obstacles[w++] = obs;
+  }
+  obstacles.length = w;
+}
+
+function injectArenaZones() {
+  removeArenaOverlaps();
+  const arenaObs = generateArenaObstacles();
+  for (const obs of arenaObs) obstacles.push(obs);
 }

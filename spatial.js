@@ -12,11 +12,11 @@ let _gridFrame = 0;
 function _gridKey(cx, cy) { return (cx + 50000) * 100000 + (cy + 50000); }
 
 function spatialClear() {
-  if (_grid.size > 2000) { _grid.clear(); }
-  else { for (const k of _grid.keys()) _grid.delete(k); }
+  _grid.clear();
 }
 
 function spatialInsert(entity) {
+  if (entity.dying) return;
   const cx = (entity.x * SPATIAL_CELL_INV) | 0;
   const cy = (entity.y * SPATIAL_CELL_INV) | 0;
   const key = _gridKey(cx, cy);
